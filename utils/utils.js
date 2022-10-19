@@ -3,7 +3,7 @@ const ERROR_NOT_FOUND = 404;
 const ERROR_INTERNAL_SERVER = 500;
 
 const errorsHandler = (err, res) => {
-  if (err.name === 'SomeErrorName') {
+  if (err.name === 'CastError') {
     return res
       .status(ERROR_CODE)
       .send({ message: `Ошибка ${ERROR_CODE}.` });
