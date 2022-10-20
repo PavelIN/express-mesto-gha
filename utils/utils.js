@@ -6,7 +6,7 @@ const errorsHandler = (err, res) => {
   if (err.name === 'CastError') {
     return res
       .status(ERROR_CODE)
-      .send({ message: `Ошибка ${ERROR_CODE}.` });
+      .send({ message: `Ошибка ${ERROR_CODE} передан некорректный id.` });
   }
   if (err.name === 'ValidationError') {
     return res
