@@ -1,7 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { ERROR_NOT_FOUND } = require('./utils/utils');
+const { errors } = require('celebrate');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/NotFoundError');
+const errorHandler = require('./middlewares/errorHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+const {
+  signUp, signIn,
+} = require('./middlewares/validations');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -14,16 +22,20 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '634ecd175d1a557dcc9f6259', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
+app.use(requestLogger);
 
-  next();
-});
+app.post('/signin', signIn, login);
+app.post('/signup', signUp, createUser);
 
+app.use(auth);
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
-app.use((req, res) => res.status(ERROR_NOT_FOUND).send({ message: 'Страница не найдена' }));
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
+});
+
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 app.listen(PORT);
