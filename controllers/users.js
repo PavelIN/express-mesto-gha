@@ -4,6 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.createUser = (req, res, next) => {
   const { email, password } = req.body;
@@ -96,7 +97,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       // проверим существует ли такой email или пароль
       if (!user || !password) {
-        throw new BadRequestError('Неверный email или пароль.');
+        throw new UnauthorizedError('Неверный email или пароль.');
       }
       const token = jwt.sign(
         { _id: user._id },
