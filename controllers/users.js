@@ -4,22 +4,12 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.createUser = (req, res, next) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    throw new BadRequestError('Неправильный логин или пароль.');
-  }
+  bcrypt.hash(password, 10)
 
-  return User.findOne({ email }).then((user) => {
-    if (user) {
-      throw new ConflictError(`Пользователь с ${email} уже существует.`);
-    }
-
-    return bcrypt.hash(password, 10);
-  })
     .then((hash) => User.create({
       email,
       password: hash,
@@ -35,10 +25,13 @@ module.exports.createUser = (req, res, next) => {
       email: user.email,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с данным email уже существует'));
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Неверные данные о пользователе или неверная ссылка на аватар.'));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -69,7 +62,7 @@ module.exports.updateUser = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Неверный тип данных.'));
+        return next(new BadRequestError('Неверный тип данных.'));
       }
       return next(err);
     });
@@ -85,7 +78,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Неверный тип данных.'));
+        return next(new BadRequestError('Неверный тип данных.'));
       }
       return next(err);
     });
@@ -95,10 +88,6 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      // проверим существует ли такой email или пароль
-      if (!user || !password) {
-        throw new UnauthorizedError('Неверный email или пароль.');
-      }
       const token = jwt.sign(
         { _id: user._id },
         'some-secret-key',

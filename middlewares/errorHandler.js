@@ -1,12 +1,7 @@
 const errorHandler = (err, req, res, next) => {
-  // eslint-disable-next-line no-console
-  const status = err.statusCode || 500;
-  const message = err.message || 'На сервере произошла ошибка.';
-
-  res.status(status).send({
-    err,
-    message,
-  });
+  const statusCode = err.statusCode || 500;
+  const message = statusCode === 500 ? 'На сервере произошла ошибка.' : err.message;
+  res.status(statusCode).send({ message });
   next();
 };
 
