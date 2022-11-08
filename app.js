@@ -11,7 +11,7 @@ const {
   signUp, signIn,
 } = require('./middlewares/validations');
 
-const allowedUrl = 'http://oranlon.nomoredomains.icu';
+const allowedUrl = 'https://oranlon.nomoredomains.icu';
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -33,6 +33,8 @@ app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
 app.use('*', (req, res, next) => {
+  console.log(req);
+
   const { origin } = req.headers;
 
   if (allowedUrl === origin) {
