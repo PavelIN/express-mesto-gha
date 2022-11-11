@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
@@ -25,6 +26,13 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(cors);
 app.use(requestLogger);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
 app.post('/signin', signIn, login);
 app.post('/signup', signUp, createUser);
 
