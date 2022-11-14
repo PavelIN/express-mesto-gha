@@ -13,6 +13,7 @@ const {
   signUp, signIn,
 } = require('./middlewares/validations');
 
+// const { PORT = 8080 } = process.env;
 const { PORT = 3000 } = process.env;
 const app = express();
 

@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const { default: isURL } = require('validator/lib/isURL');
 
 const cardSchema = new mongoose.Schema({
+  ownerUser: {
+    type: String,
+  },
   name: {
     type: String,
     required: true,

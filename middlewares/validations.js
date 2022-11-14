@@ -50,6 +50,7 @@ const updateAvatarValidation = celebrate({
 
 const createCardValidation = celebrate({
   body: Joi.object().keys({
+    ownerUser: Joi.required(),
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().custom((value) => {
       if (!validator.isURL(value, { require_protocol: true })) {
